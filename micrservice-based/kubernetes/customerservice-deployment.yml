@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customerservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customerservice
+  template:
+    metadata:
+      labels:
+        app: customerservice
+    spec:
+      containers:
+        - name: customerservice
+          image: customerservice:latest
+          ports:
+            - containerPort: 8081
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: SPRING_DATASOURCE_DOMAIN
+              value: "mysql-service"

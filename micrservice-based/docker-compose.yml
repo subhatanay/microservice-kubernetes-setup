@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    networks:
+      - app-network
+
+
+  adminservice:
+    image: adminservice
+    build:
+      context: ./adminservice
+      dockerfile: Dockerfile
+    container_name: adminservice
+    environment:
+      - SPRING_DATASOURCE_DOMAIN=mysql
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=pass
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  customerservice:
+    image: customerservice
+    build:
+      context: ./customerservice
+      dockerfile: Dockerfile
+    container_name: customerservice
+    environment:
+      - SPRING_DATASOURCE_DOMAIN=mysql
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=pass
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  nginx-proxy:
+    image: nginx
+    build:
+      context: ./nginx
+      dockerfile: nginx/Dockerfile.nginx
+    container_name: nginx-proxy
+    ports:
+      - "8080:8080"
+    depends_on:
+      - adminservice
+      - customerservice
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

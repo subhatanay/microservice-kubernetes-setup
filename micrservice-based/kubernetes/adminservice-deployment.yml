@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminservice
+  template:
+    metadata:
+      labels:
+        app: adminservice
+    spec:
+      containers:
+        - name: adminservice
+          image: adminservice:latest
+          ports:
+            - containerPort: 8082
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: SPRING_DATASOURCE_DOMAIN
+              value: "mysql-service"
